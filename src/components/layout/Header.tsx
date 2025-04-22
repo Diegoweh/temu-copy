@@ -1,5 +1,9 @@
 'use client';
+import { logoutUser } from '@/actions/auth';
+import { User, } from '@prisma/client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
 const AnnouncementBar = () => {
@@ -14,7 +18,12 @@ const AnnouncementBar = () => {
   )
 }
 
-const Header = () => {
+type HeaderProps = {
+  user: Omit<User, "passwordHash"> | null;
+}
+
+const Header = ({ user }: HeaderProps) => {
+  const router = useRouter();
 
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [prevScrollY, setPrevScrollY] = useState<number>(0);
@@ -64,16 +73,53 @@ return (
 
           </div>
 
-          <Link className="" href=''>DEAL</Link>          
+          <Link className="absolute left-1/2 -translate-x-1/2" href="#">
+            <span className="text-xl sm:text-2xl font-bold tracking-tight">
+              DEAL
+            </span>
+          </Link>          
 
           <div className="flex flex-1 justify-end items-center gap-2 sm:gap-4">
             <button className='text-gray-700 hover:text-gray-900 hidden sm:block'>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
               </svg>
             </button>
+
+          {/* User Login */}
+
+    {user ? (
+          <nav className="flex items-center gap-2 sm:gap-4">
+    <span className="hidden md:inline text-sm text-gray-700" aria-label="User Email">
+      {user.email}
+    </span>
+    <button
+      onClick={async (e) => {
+        e.preventDefault();
+        await logoutUser();
+        router.refresh();
+      }}
+      className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900"
+    >
+      Sign Out
+    </button>
+          </nav>
+      ) : (
+          <nav className="flex items-center gap-2 sm:gap-4">
+    <Link
+      href="/auth/sign-in"
+      className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900"
+    >
+      Sign In
+    </Link>
+    <Link
+      href="/auth/sign-up"
+      className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900"
+    >
+      Sign Up
+    </Link>
+          </nav>
+    )}           
             
-            <Link href="/auth/sign-in">Sign in</Link>
-            <Link href="/auth/sign-up">Sign Up</Link>
 
             <button className="text-gray-700 hover:text-gray-900 relative">
             <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5 sm:h-6 sm:w-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'/>
