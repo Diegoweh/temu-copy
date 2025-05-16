@@ -5,6 +5,7 @@ import { User, } from '@prisma/client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
+import HeaderSearchBar from './HeaderSearchBar';
 
 const AnnouncementBar = () => {
   return (
@@ -20,9 +21,10 @@ const AnnouncementBar = () => {
 
 type HeaderProps = {
   user: Omit<User, "passwordHash"> | null;
+  categorySelector: React.ReactNode;
 }
 
-const Header = ({ user }: HeaderProps) => {
+const Header = ({ user, categorySelector }: HeaderProps) => {
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useState<boolean>(true);
@@ -68,6 +70,7 @@ return (
             <nav className="hidden md:flex gap-4 lg:gap-6 text-sm font-medium">
               <Link href='#'>Shop</Link>
               <Link href='#'>New Arrivals</Link>
+              {categorySelector}
               <Link href='#'>Sale</Link>
             </nav>
 
@@ -80,10 +83,7 @@ return (
           </Link>          
 
           <div className="flex flex-1 justify-end items-center gap-2 sm:gap-4">
-            <button className='text-gray-700 hover:text-gray-900 hidden sm:block'>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-              </svg>
-            </button>
+            <HeaderSearchBar/>
 
           {/* User Login */}
 
