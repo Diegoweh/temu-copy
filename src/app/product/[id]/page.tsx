@@ -1,4 +1,5 @@
 import SalesCampaignBanner from '@/components/layout/SalesCampaignBanner';
+import AddToCartButton from '@/components/product/AddToCartButton';
 import { formatPrice } from '@/lib/utils';
 import { getProductById } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
@@ -149,6 +150,23 @@ const ProductPage = async ({ params }: { params: Promise<{ id: string }> } ) => 
                         </div>
                         <div className='text-sm text-yellow-700 mt-1 font-medium'>
                             Order now before price changes!
+                        </div>
+                    </div>
+
+                    <AddToCartButton product={product} />
+
+                    <div className="flex flex-col gap-3 mt-6 text-sm bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div className='flex items-center gap-3 text-gray-700'>
+                            <span className='bg-green-100 p-2 rounded-full'>✅</span>
+                            <span className='font-medium'>In stock - Ships within 24 hours</span>
+                        </div>
+                        <div className='flex items-center gap-3 text-gray-700'>
+                            <span className='bg-green-100 p-2 rounded-full'>🔄</span>
+                            <span className='font-medium'>30-day money-back guarantee</span>
+                        </div>
+                        <div className='flex items-center gap-3 text-gray-700'>
+                            <span className='bg-green-100 p-2 rounded-full'>🛡️</span>
+                            <span className='font-medium'>Secure payment processing</span>
                         </div>
                     </div>
                 </div>
