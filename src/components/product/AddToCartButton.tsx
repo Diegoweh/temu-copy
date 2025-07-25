@@ -1,24 +1,60 @@
 "use client";
 import { Product } from '@/*'
 import { formatPrice } from '@/lib/utils';
+import { urlFor } from '@/sanity/lib/image';
+import { useCartStore } from '@/stores/cart-store';
 import { Loader2 } from 'lucide-react';
 import React, { useState } from 'react'
+import { useShallow } from 'zustand/shallow'
 
 type AddToCartButtonProps = {
     product: Product
 }
 
 const AddToCartButton = ({product}: AddToCartButtonProps) => {
+    const { cartId, addItem, open } = useCartStore(
+        useShallow((state) => ({
+            cartId: state.cartId,
+            addItem: state.addItem,
+            open: state.open,
+        }))
+    )
 
     const [isLoading, setLoading] = useState(false);
 
     const handleAddToCart = async () => {
+        if(!product.title || product.price === undefined || !product.image) {
+            return;
+        }
         setLoading(true);
 
-        //Add the item to the cart
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Add the item to the cart
+        await new Promise(resolve => setTimeout(resolve, 600));
 
-        setLoading(false)
+        addItem({
+            id: product._id,
+            title: product.title,
+            price: product.price,
+            image: urlFor(product.image).url(),
+            quantity: 1,
+        });
+
+        try {
+            const anyWindow = window as any;
+
+            if(anyWindow.umami) {
+                anyWindow.umami.track('add_to_cart', {
+                    cartId: cartId,
+                    productId: product._id,
+                    productName: product.title,
+                    price: product.price,
+                    currency: 'USD',
+                })
+            }
+        } catch(e) {}
+
+        setLoading(false);
+        open();
     }
 
     if(!product.price) {
