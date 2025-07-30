@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-// import { umamiTrackCheckoutSuccessEvent } from "@/lib/umami";
+import { umamiTrackCheckoutSuccessEvent } from "@/lib/umami";
 import { createClient } from "next-sanity";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -52,7 +52,23 @@ export async function POST(req: Request) {
 
         switch(event.type) {
             case 'checkout.session.completed': {
-                const session = event.data.object as Stripe.Checkout.Session;
+                type ExtendedCheckoutSession = Stripe.Checkout.Session & {
+                    collected_information?: {
+                        shipping_details?: {
+                            name?: string;
+                            address?: {
+                                line1?: string;
+                                line2?: string;
+                                city?: string;
+                                state?: string;
+                                postal_code?: string;
+                                country?: string;
+                            };
+                        };
+                    };
+                };
+
+                const session = event.data.object as ExtendedCheckoutSession;
 
                 const cartId = session.metadata?.cartId;
                 const userId = session.metadata?.userId;
@@ -74,23 +90,7 @@ export async function POST(req: Request) {
                     throw new Error("Cart not found");
                 }
 
-                // 🔍 Nuevo: obtener dirección de envío desde el objeto customer
-                let customerData: Stripe.Customer | null = null;
-                let shippingAddressData: Stripe.Address | null = null;
-                let shippingName: string | null = null;
-
-                if (typeof session.customer === 'string') {
-                    try {
-                        const customer = await stripe.customers.retrieve(session.customer);
-                        if (customer && !customer.deleted) {
-                            customerData = customer as Stripe.Customer;
-                            shippingAddressData = customerData.shipping?.address || null;
-                            shippingName = customerData.shipping?.name || null;
-                        }
-                    } catch (error) {
-                        console.error("Error retrieving Stripe customer:", error);
-                    }
-                }
+                const shipping = session.collected_information?.shipping_details;
 
                 const order = await sanityClient.create({
                     _type: 'order',
@@ -99,19 +99,22 @@ export async function POST(req: Request) {
                     customerId: userId !== '-' ? userId : undefined,
                     customerEmail: session.customer_details?.email,
                     customerName: session.customer_details?.name,
-                    stripeCustomerId: typeof session.customer === 'object' ? session.customer?.id || '' : session.customer,
+                    stripeCustomerId:
+                        typeof session.customer === 'object'
+                            ? session.customer?.id || ''
+                            : session.customer,
                     stripeCheckoutSessionId: session.id,
                     stripePaymentIntentId: session.payment_intent as string,
                     totalPrice: Number(session.amount_total) / 100,
                     shippingAddress: {
                         _type: 'shippingAddress',
-                        name: shippingName || '',
-                        line1: shippingAddressData?.line1 || '',
-                        line2: shippingAddressData?.line2 || '',
-                        city: shippingAddressData?.city || '',
-                        state: shippingAddressData?.state || '',
-                        postalCode: shippingAddressData?.postal_code || '',
-                        country: shippingAddressData?.country || '',
+                        name: shipping?.name,
+                        line1: shipping?.address?.line1 || '',
+                        line2: shipping?.address?.line2 || '',
+                        city: shipping?.address?.city,
+                        state: shipping?.address?.state,
+                        postalCode: shipping?.address?.postal_code,
+                        country: shipping?.address?.country,
                     },
                     orderItems: cart.items.map((item) => ({
                         _type: 'orderItem',
@@ -121,38 +124,34 @@ export async function POST(req: Request) {
                             _ref: item.sanityProductId,
                         },
                         quantity: item.quantity,
-                        price: item.price
+                        price: item.price,
                     })),
                     status: 'PROCESSING',
                 });
 
-                // try {
-                //     await umamiTrackCheckoutSuccessEvent({
-                //         cartId: cartId,
-                //         email: order.customerEmail || '-',
-                //         orderId: order.orderNumber,
-                //         orderTotal: order.totalPrice,
-                //         orderCurrency: 'USD',
-                //     });
-                // } catch (e) {
-                //     console.log("Umami tracking error");
-                //     console.log(e);
-                // }
+                try {
+                    await umamiTrackCheckoutSuccessEvent({
+                        cartId: cartId,
+                        email: order.customerEmail || '-',
+                        orderId: order.orderNumber,
+                        orderTotal: order.totalPrice,
+                        orderCurrency: 'USD',
+                    });
+                } catch (e) {
+                    console.log("Umami tracking error");
+                    console.log(e);
+                }
 
                 await prisma.cart.delete({
                     where: {
                         id: cartId
                     }
                 });
+
                 break;
             }
 
-            default: {
-                console.log(`Unhandled event type: ${event.type}`);
-                break;
-            }
         }
-
         return NextResponse.json({ success: true });
     } catch(e) {
         console.log("Something went wrong:");
