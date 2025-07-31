@@ -1,0 +1,55 @@
+.
+├── actions
+│   ├── auth.ts
+│   ├── cart-action.ts
+│   └── stripe-actions.ts
+├── app
+│   ├── api
+│   │   └── stripe
+│   ├── auth
+│   │   ├── sign-in
+│   │   └── sign-up
+│   ├── category
+│   │   └── [slug]
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── product
+│   │   └── [id]
+│   ├── search
+│   │   └── page.tsx
+│   └── studio
+│       └── [[...tool]]
+├── components
+│   ├── auth
+│   │   ├── SignIn.tsx
+│   │   └── SignUp.tsx
+│   ├── cart
+│   │   └── Cart.tsx
+│   ├── layout
+│   │   ├── Header.tsx
+│   │   ├── HeaderCategorySelector.tsx
+│   │   ├── HeaderSearchBar.tsx
+│   │   └── SalesCampaignBanner.tsx
+│   └── product
+│       ├── AddToCartButton.tsx
+│       ├── ProductGrid.tsx
+│       └── ProductItem.tsx
+├── lib
+│   ├── prisma.ts
+│   └── utils.ts
+├── sanity
+│   ├── env.ts
+│   ├── lib
+│   │   ├── client.ts
+│   │   ├── image.ts
+│   │   └── live.ts
+│   ├── schemaTypes
+│   │   ├── index.ts
+│   │   └── schemas
+│   └── structure.ts
+└── stores
+    └── cart-store.ts
+
+26 directories, 27 files

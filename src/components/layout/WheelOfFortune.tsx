@@ -121,14 +121,10 @@ const WinningItem = ({ product, onClose }: {product: Product, onClose: () => voi
     }
 
     return (
-        <div className='text-center animate-[slideUp_0.5s_ease-out]'>
+        <div className='text-center px-4 sm:px-0 animate-[slideUp_0.5s_ease-out]'>
             <div
                 className={`
-                    p-8 rounded-xl bg-white shadow-2xl
-                    backdrop-blur-lg bg-opacity-90
-                    border border-white/20
-                    transform transition-all duration-500
-                    hover:shadow-emerald-500/20 hover:scale-[1.01]
+                    max-w-md w-full mx-auto p-6 sm:p-8 rounded-xl bg-white shadow-2xl backdrop-blur-lg bg-opacity-90 border border-white/20 transform transition-all duration-500 hover:shadow-emerald-500/20 hover:scale-[1.01]
                 `}
             >
                 <div className='relative p-4'>
@@ -149,8 +145,7 @@ const WinningItem = ({ product, onClose }: {product: Product, onClose: () => voi
                                 {/* Sparkle Effects */}
                                 <div
                                     className={`
-                                        absolute -inset-4 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500
-                                        rounded-2xl opacity-75 blur-lg animate-pulse group-hover:opacity-100 transition-opacity duration-500
+                                        absolute -inset-2 sm:-inset-4 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 rounded-2xl opacity-75 blur-lg animate-pulse group-hover:opacity-100 transition-opacity duration-500
                                     `}
                                 />
 
@@ -166,7 +161,7 @@ const WinningItem = ({ product, onClose }: {product: Product, onClose: () => voi
                                         <Image
                                             src={urlFor(product.image).width(256).url()}
                                             alt={product.title || 'Winning Product!'}
-                                            className='object-cover transform transition-all duration-500 group-hover:scale-105'
+                                            className='w-full max-w-[256px] object-cover transform transition-all duration-500 group-hover:scale-105'
                                             width={256}
                                             height={256}
                                         />
@@ -296,7 +291,8 @@ const WheelOfFortune = ({ products, winningIndex }: WheelOfFortuneProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className='sm:max-w-[800px] p-0'>
+            <DialogContent className='w-full max-w-[95vw] sm:max-w-[800px] p-4 sm:p-0 max-h-[90vh] overflow-y-auto'>
+                <div className='overflow-x-hidden'>                
                 <DialogTitle>
                     <div className='p-6 text-center relative overflow-hidden'>
                         <div className='absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 animate-pulse' />
@@ -306,7 +302,7 @@ const WheelOfFortune = ({ products, winningIndex }: WheelOfFortuneProps) => {
                         <p className='text-muted-foreground mb-4 relative animate-pulse'>
                             Try your luck! Spin the wheel for a chance to win amazing prizes!
                         </p>
-                        <div className='absolute -left-10 top-1/2 h-8 w-40 bg-white/20 rotate-45 animate-[shine_2s_infinite]' />
+                        <div className='absolute -left-10 top-1/2 h-8 w-full bg-white/20 rotate-45 animate-[shine_2s_infinite]' />
                     </div>
                 </DialogTitle>
 
@@ -412,6 +408,7 @@ const WheelOfFortune = ({ products, winningIndex }: WheelOfFortuneProps) => {
                             </>
                         )}
                     </button>
+                </div>
                 </div>
             </DialogContent>
         </Dialog>
